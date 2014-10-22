@@ -31,6 +31,35 @@ public class AirbnbReservationTest {
 	String testPayoutLine 		= "10/15/2014,Payout,,,,,,Transfer to ACH: *****4879,,USD,,92,,\n";
 	String testReservationLine 	= "10/15/2014,Reservation,CKQ94D,10/14/2014,1,Jia Qi Shen,Great Location Great Price! 2BR SLC,,,USD,92,,3,0\n";
 
+	
+	@Test
+	public void testPrintRevenuesByListingAndMonthReport() {
+		AirbnbReservationCollection resCollection = null;
+		List<String> fileList;
+		//fileList = Arrays.asList("c:/temp/airbnb_2014.csv".split(","));
+		//fileList = Arrays.asList("c:/temp/airbnb_tax_2014.csv".split(","));
+		//fileList = Arrays.asList("c:/temp/airbnb_pending.csv".split(","));
+		fileList = Arrays.asList("c:/temp/airbnb_2014.csv,c:/temp/airbnb_pending.csv".split(","));
+		try {
+			resCollection = new AirbnbReservationCollection(fileList);
+			resCollection.printRevenuesByListingAndMonthReport();
+			assert(true);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@Test
+	public void testAirbnbReservation_getMonthlyRevenueByPropertyMap() throws InvalidHeaderLineException, InvalidReservationLineException, ParseException {
+		String testResLine = "12/20/2013,Reservation,ABCDEF,12/19/2014,15,Super Man,Great Location Great Price! 2BR SLC,,,USD,1380,,3,0\n";
+		AirbnbReservation res = new AirbnbReservation(testHeader,testResLine);
+		HashMap<String,Float> hm = res.getMonthlyRevenueByPropertyMap();
+		System.out.println(hm);
+	}
+	
+	
+	
+	
 	@Test
 	public void testPrintReservationNightTotals() {
 		System.out.println("testPrintReservationNightTotals()----begin----");
@@ -42,7 +71,7 @@ public class AirbnbReservationTest {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		resCollection.printReservationNightTotals();
+		resCollection.getMonthlyReservationNightTotals();
 		System.out.println("testPrintReservationNightTotals()----end----");
 		assert(true);
 	}
@@ -116,6 +145,7 @@ public class AirbnbReservationTest {
 	
 	@Test
 	public void testPrintPropertyList() {
+		System.out.println("testPrintPropertyList()");
 		AirbnbReservationCollection resCollection = null;
 		List<String> fileList;
 		fileList = Arrays.asList("c:/temp/airbnb_2014.csv".split(","));
