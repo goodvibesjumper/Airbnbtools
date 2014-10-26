@@ -128,38 +128,104 @@ public class AirbnbReservationCollection {
 	
 	public void printRevenuesByListingAndMonthReport() {
 		System.out.println("Revenues By Listing and Month Report");
-		//System.out.println(monthlyRevenuesByPropertyMap);
+		System.out.println("-------- -- ------- --- ----- ------\n");
 		
 		float grandTotal = 0;
-		for (String listing : listingNames) {
-			float listingTotal = 0;
-			System.out.println(listing);
+		float yearTotal = 0;
+		int startYear = 2013;
+		int endYear = 2015;
+		int yearCount = endYear-startYear+1;
+		int listingCount = listingNames.size();
+		 
+		float[][][] yearlyGrid = new float[yearCount+1][listingCount + 1][13]; // All properties
+		
+		for (int y = startYear; y <= endYear; y++) {
+			yearTotal = 0;
+			
+			Float[] monthlyTotals = new Float[12];
+						
+			for (int x=0; x < 12; x++) { 
+				monthlyTotals[x]=(float) 0;
+			}
+			
+			for (String listing : listingNames) {
+				int listingIdx = listingNames.indexOf(listing);
+				
+				float listingTotal = 0;
+				System.out.println(listing + " " + y);
+				for (int x=0; x < 12; x++) {
+					String monthName = DateFormatSymbols.getInstance(Locale.US).getMonths()[x];
+					monthName = monthName.substring(0, 3);
+
+					float amt = 0;
+				
+					try {
+						String key = listing + "|" + x + "/" + y;
+						amt = monthlyRevenuesByPropertyMap.get(key);
+						listingTotal+=amt;
+						monthlyTotals[x] += amt;
+						yearlyGrid[y-startYear][listingIdx][x] = amt;							
+						
+						yearTotal+=amt;
+						grandTotal+=amt;
+					} catch (Exception e) {}
+	
+					if (amt > 0)
+						System.out.printf(monthName + "\t%8.2f\n",amt);
+				}
+				yearlyGrid[y-startYear][listingIdx][12] = listingTotal;
+			
+		    	System.out.println("------------------");
+		    	System.out.printf("\t%8.2f\t" + y + " " + listing + "\n\n",listingTotal);
+			}
+			
+			System.out.printf("Monthly Totals All Units " + y + " :\n");
 			for (int x=0; x < 12; x++) {
 				String monthName = DateFormatSymbols.getInstance(Locale.US).getMonths()[x];
 				monthName = monthName.substring(0, 3);
-
-				float amt = 0;
-				
-				try {
-					String key = listing + "|" + x + "/2014";
-					amt = monthlyRevenuesByPropertyMap.get(key);
-					listingTotal+=amt;
-					grandTotal+=amt;
-				} catch (Exception e) {}
-				
-				//DecimalFormat myFormatter = new DecimalFormat("$##,###.##");
-				DecimalFormat myFormatter = new DecimalFormat("$##,##0.00");
-			    String amtString = myFormatter.format(amt);
-				
-				System.out.println(monthName + "\t" + amtString);
+				yearlyGrid[y-startYear][listingCount][x] = monthlyTotals[x];
+				if (monthlyTotals[x] > 0)
+					System.out.printf(monthName + "\t %8.2f\t\t\n",monthlyTotals[x]);
 			}
-			
-			DecimalFormat myFormatter = new DecimalFormat("$##,###.##");
-		    String amtString = myFormatter.format(listingTotal);
-		    System.out.println("------------------");
-			System.out.println("TOTAL\t" + amtString + "\t"+listing + "\n\n");
-			
+			yearlyGrid[y-startYear][listingCount][12] = yearTotal;
+			System.out.printf("\t --------\n");
+			System.out.printf("\t%9.2f\n\n\n",yearTotal);
 		}
-		System.out.print("GRAND TOTAL\t" + grandTotal + "\n\n");
+		
+		System.out.print("\nGRAND TOTAL\t" + grandTotal + "\n\n");
+		
+		// Print the yearly grid
+    	System.out.printf("\n\n");
+    	for (int iYear=0; iYear < yearCount; iYear++) {
+    		System.out.print("\n" + (startYear + iYear));
+    		for (int i=0; i< listingCount; i++) {
+    			System.out.print("\t" + listingNames.get(i).substring(0, 9));
+    		}
+    		System.out.print("\tAll Units");
+    		System.out.print("\n-----------------------------------------------------------------\n");
+    		
+    		
+    		for (int iMonth=0; iMonth < 13; iMonth++) {	
+    			
+    			String monthName;
+    			if (iMonth < 12){
+    				monthName = DateFormatSymbols.getInstance(Locale.US).getMonths()[iMonth];
+    				monthName = monthName.substring(0, 3);
+    			} else {
+    				System.out.println("-----------------------------------------------------------------");
+    				monthName = "Tot";
+    			}
+    			
+    			System.out.printf(monthName);
+    			for (int iListing=0; iListing < listingCount+1; iListing++) {
+    				float val = 0;
+    				val = yearlyGrid[iYear][iListing][iMonth];
+    				System.out.printf("\t%9.2f", val);
+    			}
+    			System.out.println();
+    		}
+    		System.out.println();
+		}
+			
 	}
 }
