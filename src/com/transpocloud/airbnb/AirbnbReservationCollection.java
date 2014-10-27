@@ -15,6 +15,8 @@ import java.text.ParseException;
 /**
  * @author Crash
  * comment test 10/27/14 2:24pm
+ * here is a comment from notebook 3:12pm
+ * here is a comment from notebook 3:13pm
  */
 public class AirbnbReservationCollection {
 	
@@ -74,12 +76,14 @@ public class AirbnbReservationCollection {
 				linesRead++;
 			}
 			br.close();
-			//System.out.println(linesRead + " lines read from " + filePath);
-			//System.out.println(airbnbReservationList.size() + " reservations.");
+			
 		}
 		return;
 	}
 
+	/**
+	 * Prints out a list of properties
+	 */
 	public void printPropertyList() {
 		System.out.println(listingNames.toString());
 	}
