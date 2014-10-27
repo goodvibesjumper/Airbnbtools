@@ -4,16 +4,13 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.text.DecimalFormat;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.text.DateFormatSymbols;
-
-
+import java.text.ParseException;
 
 /**
  * @author Crash
@@ -43,7 +40,6 @@ public class AirbnbReservationCollection {
 		for(Iterator<String> i = aFileList.iterator(); i.hasNext(); ) {
 			
 			String filePath = i.next();
-			//System.out.println("File Path : " + filePath);
 
 			File csvData = new File(filePath);
 						
@@ -75,8 +71,6 @@ public class AirbnbReservationCollection {
 						}
 					} 
 				}
-					
-				//System.out.println(line);
 				linesRead++;
 			}
 			br.close();
@@ -124,6 +118,15 @@ public class AirbnbReservationCollection {
 		HashMap<String,Integer> hm = getMonthlyReservationNightTotals();
 		System.out.println("Reservation Collection Night Totals :\n" + hm);
 		
+		System.out.println("Monthly Revenues By Guest Report");
+		System.out.println("------- -------- -- ----- ------\n");
+		
+		for (String listing : listingNames) {
+			System.out.println(listing);
+			
+			
+		}
+		
 	}
 	
 	public void printRevenuesByListingAndMonthReport() {
@@ -160,7 +163,7 @@ public class AirbnbReservationCollection {
 					float amt = 0;
 				
 					try {
-						String key = listing + "|" + x + "/" + y;
+						String key = listing + "|" + (x+1) + "/" + y;
 						amt = monthlyRevenuesByPropertyMap.get(key);
 						listingTotal+=amt;
 						monthlyTotals[x] += amt;

@@ -1,13 +1,14 @@
 package com.transpocloud.airbnb;
 
 import java.text.ParseException;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Arrays;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 
 import org.apache.commons.lang3.time.DateUtils;
 /**
@@ -16,16 +17,16 @@ import org.apache.commons.lang3.time.DateUtils;
  *
  */
 public class AirbnbReservation {
-	private Date 	startDate;
-	private int		numberOfNights;
-	private String	guestName;
-	private String	listingName;		// which property is this res for
-	private String	confirmationCode;
-	private float	amount;
-	private float	hostFee;
-	private float	cleaningFee;
-	private String	csvReservationLine;		// the line used to create this object
-	private String	csvHeaderLine;
+	private LocalDate 		startDate;
+	private int				numberOfNights;
+	private String			guestName;
+	private String			listingName;		// which property is this res for
+	private String			confirmationCode;
+	private float			amount;
+	private float			hostFee;
+	private float			cleaningFee;
+	private String			csvReservationLine;		// the line used to create this object
+	private String			csvHeaderLine;
 	
 	HashMap<String, Integer> reservationNightsByMonthMap;	// generated upon creation
 	// stores number of nights this reservation spans in the format
@@ -33,16 +34,16 @@ public class AirbnbReservation {
 	//  and n is the number of nights this reservation 
 	
 	//----------- basic get/setters ----------------//
-	public Date 	getStartDate() 			{ return startDate; }
-	public int		getNumberOfNights() 	{ return numberOfNights; }
-	public String 	getGuestName()			{ return guestName; }
-	public float	getAmount()				{ return amount; }
-	public float	getHostFee()			{ return hostFee; }
-	public float	getCleaningFee()		{ return cleaningFee; }
-	public String	getCsvReservationLine()	{ return csvReservationLine; }
-	public String	getCsvHeaderLine() 		{ return csvHeaderLine; }
-	public String	getListingName()		{ return listingName; }
-	public String	getConfirmationCode()	{ return confirmationCode; }
+	public LocalDate 		getStartDate() 			{ return startDate; }
+	public int				getNumberOfNights() 	{ return numberOfNights; }
+	public String 			getGuestName()			{ return guestName; }
+	public float			getAmount()				{ return amount; }
+	public float			getHostFee()			{ return hostFee; }
+	public float			getCleaningFee()		{ return cleaningFee; }
+	public String			getCsvReservationLine()	{ return csvReservationLine; }
+	public String			getCsvHeaderLine() 		{ return csvHeaderLine; }
+	public String			getListingName()		{ return listingName; }
+	public String			getConfirmationCode()	{ return confirmationCode; }
 	
 	/**
 	 * Gets a hash map of nights done for each month/year
@@ -85,11 +86,12 @@ public class AirbnbReservation {
 		String amountString = reservationLineList.get(headerDescriptionList.indexOf("Amount"));
 		String hostFeeString = reservationLineList.get(headerDescriptionList.indexOf("Host Fee"));
 		String cleaningFeeString = reservationLineList.get(headerDescriptionList.indexOf("Cleaning Fee"));
-		SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
 
 		guestName 			= reservationLineList.get(headerDescriptionList.indexOf("Guest"));
-		listingName 		= reservationLineList.get(headerDescriptionList.indexOf("Listing"));		
-		startDate 			= formatter.parse(startDateString);
+		listingName 		= reservationLineList.get(headerDescriptionList.indexOf("Listing"));
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+		startDate			= LocalDate.parse(startDateString,formatter);
+		//startDate 			= formatter.parse(startDateString);
 		confirmationCode 	= reservationLineList.get(headerDescriptionList.indexOf("Confirmation Code"));
 		numberOfNights		= Integer.parseInt(numberOfNightsString);
 		amount 				= Float.parseFloat(amountString);
@@ -98,6 +100,14 @@ public class AirbnbReservation {
 		
 		reservationNightsByMonthMap = getMonthlyReservationNights(); 
 		return;
+	}
+	
+	public Date getCheckoutDate() {
+		return getCheckoutDate(this.csvHeaderLine,this.csvReservationLine);
+	}
+	
+	public LocalDate getCheckInDate() {
+		return this.startDate;
 	}
 	
 	// get the scheduled checkout date of a reservation
@@ -228,19 +238,14 @@ public class AirbnbReservation {
 	
 	public HashMap<String, Integer> getMonthlyReservationNights() {
 		HashMap<String, Integer> hm = new HashMap<String, Integer>();
-		
-		Date d = (Date) startDate.clone();
-		
-		Calendar cal = Calendar.getInstance();
-		
+
 		for (int i = 0; i < numberOfNights; i++)
 		{
-			Date d2 = DateUtils.addDays(d, i);
+			LocalDate d2 = startDate.plusDays(i);
 			
-			cal.setTime(d2);
-			int month = cal.get(Calendar.MONTH);
-			int year = cal.get(Calendar.YEAR);
-			//System.out.println(month + "/" + year);
+			int month = d2.getMonth().getValue();
+			int year = d2.getYear();
+
 			String key = month + "/" + year;
 			if (hm.containsKey(key)) {
 				hm.replace(key, (hm.get(key))+1);
@@ -252,6 +257,26 @@ public class AirbnbReservation {
 		//System.out.println(this.guestName + " " + this.listingName + " " + hm.toString());
 		
 		return hm;
+	}
+	
+	/*
+	 * Does this reservation have any nights that are booked in a 
+	 * particular month?
+	 * 
+	 * aMonth - Jan-1, Feb-2...Dec-12
+	 */
+	public boolean hasNightsInAMonth(Integer aMonth, Integer aYear) {
+		boolean ret = false;
+		if (aYear < 100); aYear = aYear + 2000;
+		LocalDate firstDayOfMonth = LocalDate.of(aYear,aMonth-1,1);		
+		LocalDate lastDayOfMonth = firstDayOfMonth.with(TemporalAdjusters.lastDayOfMonth());
+		
+		
+		//aMonth.toString() + aYear.toString()
+		//For int i =
+		
+		
+		return ret;
 	}
 }
 
