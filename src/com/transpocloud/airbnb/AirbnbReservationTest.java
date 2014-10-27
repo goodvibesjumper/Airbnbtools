@@ -36,10 +36,7 @@ public class AirbnbReservationTest {
 	public void testPrintRevenuesByListingAndMonthReport() {
 		AirbnbReservationCollection resCollection = null;
 		List<String> fileList;
-		//fileList = Arrays.asList("c:/temp/airbnb_2014.csv".split(","));
-		//fileList = Arrays.asList("c:/temp/airbnb_tax_2014.csv".split(","));
-		//fileList = Arrays.asList("c:/temp/airbnb_pending.csv".split(","));
-		fileList = Arrays.asList("C:/Users/Crash/Downloads/airbnb_2013.csv,C:/Users/Crash/Downloads/airbnb_2014.csv,C:/Users/Crash/Downloads/airbnb_pending.csv".split(","));
+		fileList = Arrays.asList("C:/temp/airbnb_2013.csv,C:/temp/airbnb_2014.csv,C:/temp/airbnb_pending.csv".split(","));
 		try {
 			resCollection = new AirbnbReservationCollection(fileList);
 			resCollection.printRevenuesByListingAndMonthReport();
