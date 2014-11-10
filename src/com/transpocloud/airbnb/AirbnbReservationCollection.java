@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Locale;
 import java.text.DateFormatSymbols;
 import java.text.ParseException;
+import java.time.LocalDate;
 
 /**
  * @author Crash
@@ -23,8 +24,34 @@ public class AirbnbReservationCollection {
 	ArrayList<String> listingNames = new ArrayList<String>();
 	HashMap<String,Float> monthlyRevenuesByPropertyMap = new HashMap<String,Float>();
 	
+	
 	public AirbnbReservationCollection() {}
 	public ArrayList<String> getListingNames() { return listingNames; }
+	
+	
+	/**
+	 * Test to see if a particular unit is vacant on a particular night.
+	 * 
+	 * @param aUnitName The text string that identifies the unit
+	 * @param aDate		The date that we wish to check vacancy
+	 * @return			true if vacant
+	 */
+	public boolean isUnitVacant(String aUnitName, LocalDate aDate) {
+		boolean isVacant = true;
+		for(Iterator<AirbnbReservation> i = airbnbReservationList.iterator(); i.hasNext(); ) {
+			AirbnbReservation res = i.next();
+			if (res.getListingName().contains(aUnitName)) {
+				LocalDate checkInDate = res.getCheckInDate();
+				
+				if (aDate.isEqual(checkInDate)) return false;
+				if (aDate.isAfter(checkInDate) && aDate.isBefore(res.getCheckoutDate())) return false;
+			}
+			
+		}
+		
+		return isVacant;
+		
+	}
 	
 	
 	/**

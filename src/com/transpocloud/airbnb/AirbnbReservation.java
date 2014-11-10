@@ -102,7 +102,7 @@ public class AirbnbReservation {
 		return;
 	}
 	
-	public Date getCheckoutDate() {
+	public LocalDate getCheckoutDate() {
 		return getCheckoutDate(this.csvHeaderLine,this.csvReservationLine);
 	}
 	
@@ -111,22 +111,16 @@ public class AirbnbReservation {
 	}
 	
 	// get the scheduled checkout date of a reservation
-	public static Date getCheckoutDate(String aCsvColumnHeaderLine, String aCsvReservationLine) {
-		Date checkoutDate = null;
+	public static LocalDate getCheckoutDate(String aCsvColumnHeaderLine, String aCsvReservationLine) {
+		LocalDate checkoutDate = null;
 		String d = AirbnbReservation.getField("Start Date", aCsvColumnHeaderLine, aCsvReservationLine);
 		String n = AirbnbReservation.getField("Nights", aCsvColumnHeaderLine, aCsvReservationLine);
 		int nights = Integer.parseInt(n);
 		
-		SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
-		String dateInString = d;
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
 		
-		try {
-			checkoutDate = formatter.parse(dateInString);
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-		
-		DateUtils.addDays(checkoutDate, nights);
+		checkoutDate = LocalDate.parse(d, formatter);
+		checkoutDate = checkoutDate.plusDays(nights);
 		
 		return checkoutDate;
 	}
