@@ -8,17 +8,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
-import java.text.DateFormatSymbols;
 import java.text.ParseException;
 import java.time.LocalDate;
+
+
 
 /**
  * @author Crash
  * comment test 10/27/14 2:24pm
  */
 public class AirbnbReservationCollection {
-	
+
 	String csvHeaderLine = null;
 	ArrayList<AirbnbReservation> airbnbReservationList = new ArrayList<AirbnbReservation>();
 	ArrayList<String> listingNames = new ArrayList<String>();
@@ -27,7 +27,17 @@ public class AirbnbReservationCollection {
 	
 	public AirbnbReservationCollection() {}
 	public ArrayList<String> getListingNames() { return listingNames; }
+	public HashMap<String,Float> getMonthlyRevenuesByPropertyMap() { return monthlyRevenuesByPropertyMap; }
 	
+	public static String getListingAlias(String aListingString) {
+		String ret = aListingString;
+		
+		if (aListingString.contains("Great Location Great Price!")) 		return "335 DN";
+		if (aListingString.contains("Huge 2br King Beds Great Location!")) 	return "335 UP";
+		if (aListingString.contains("1 Bedroom Half Duplex with Kitchen")) 	return "REGAL DN";
+		
+		return ret;
+	}
 	
 	/**
 	 * Test to see if a particular unit is vacant on a particular night.
@@ -37,22 +47,28 @@ public class AirbnbReservationCollection {
 	 * @return			true if vacant
 	 */
 	public boolean isUnitVacant(String aUnitName, LocalDate aDate) {
+		//System.out.println("isUnitVacant() called, unit name: " + aUnitName + " Date:" + aDate);
+		
 		boolean isVacant = true;
+
 		for(Iterator<AirbnbReservation> i = airbnbReservationList.iterator(); i.hasNext(); ) {
+			
 			AirbnbReservation res = i.next();
+			
 			if (res.getListingName().contains(aUnitName)) {
 				LocalDate checkInDate = res.getCheckInDate();
+				//System.out.println(res.getCsvReservationLine());
+				//System.out.println(aDate.isEqual(checkInDate) + " " + aDate.isAfter(checkInDate) + aDate.isBefore(res.getCheckoutDate()));
 				
 				if (aDate.isEqual(checkInDate)) return false;
 				if (aDate.isAfter(checkInDate) && aDate.isBefore(res.getCheckoutDate())) return false;
 			}
-			
 		}
 		
 		return isVacant;
 		
 	}
-	
+	 
 	
 	/**
 	 * Create a collection of AirbnbReservation objects from a .csv file
@@ -136,126 +152,50 @@ public class AirbnbReservationCollection {
 		
 		return resTotalsMap;
 	}
-	
-	
-	/**
-	 * 
-	 */
-	public void printRevenuesByMonthGuestReport() {
-		HashMap<String,Integer> hm = getMonthlyReservationNightTotals();
-		System.out.println("Reservation Collection Night Totals :\n" + hm);
-		
-		System.out.println("Monthly Revenues By Guest Report");
-		System.out.println("------- -------- -- ----- ------\n");
-		
-		for (String listing : listingNames) {
-			System.out.println(listing);
-			
-			
-		}
-		
-	}
-	
-	public void printRevenuesByListingAndMonthReport() {
-		System.out.println("Revenues By Listing and Month Report");
-		System.out.println("-------- -- ------- --- ----- ------\n");
-		
-		float grandTotal = 0;
-		float yearTotal = 0;
-		int startYear = 2013;
-		int endYear = 2015;
-		int yearCount = endYear-startYear+1;
-		int listingCount = listingNames.size();
-		 
-		float[][][] yearlyGrid = new float[yearCount+1][listingCount + 1][13]; // All properties
-		
-		for (int y = startYear; y <= endYear; y++) {
-			yearTotal = 0;
-			
-			Float[] monthlyTotals = new Float[12];
-						
-			for (int x=0; x < 12; x++) { 
-				monthlyTotals[x]=(float) 0;
-			}
-			
-			for (String listing : listingNames) {
-				int listingIdx = listingNames.indexOf(listing);
-				
-				float listingTotal = 0;
-				System.out.println(listing + " " + y);
-				for (int x=0; x < 12; x++) {
-					String monthName = DateFormatSymbols.getInstance(Locale.US).getMonths()[x];
-					monthName = monthName.substring(0, 3);
 
-					float amt = 0;
-				
-					try {
-						String key = listing + "|" + (x+1) + "/" + y;
-						amt = monthlyRevenuesByPropertyMap.get(key);
-						listingTotal+=amt;
-						monthlyTotals[x] += amt;
-						yearlyGrid[y-startYear][listingIdx][x] = amt;							
-						
-						yearTotal+=amt;
-						grandTotal+=amt;
-					} catch (Exception e) {}
-	
-					if (amt > 0)
-						System.out.printf(monthName + "\t%8.2f\n",amt);
+
+	/**
+	 * Create a 3 dimensional array that has the number of check-ins (or check-outs)done for a particular month and 
+	 *  a particular listing.
+	 *  
+	 *  true - gets check in array
+	 *  false - gets check out array
+	 *  
+	 *  The first dimension represents the year
+	 *  The second dimension represents the listing
+	 *  The third dimension represents each month
+	 *  
+	 * @return
+	 */
+	public int[][][] getCheckInOrCheckOutByMonthArray(boolean getCheckIn) {
+		int yearCount = AirbnbGlobals.ENDYEAR-AirbnbGlobals.STARTYEAR+1;
+		int listingCount = listingNames.size();
+		
+		int[][][] checkInArray = new int[yearCount][listingCount+1][13];
+		
+		for(Iterator<AirbnbReservation> i = airbnbReservationList.iterator(); i.hasNext(); ) {
+			AirbnbReservation res = i.next();
+			LocalDate d = getCheckIn ? res.getCheckInDate() : res.getCheckoutDate();
+			int y = d.getYear();
+			int m = d.getMonth().getValue() - 1;
+			int l = this.listingNames.indexOf(res.getListingName());
+			if ((y < 0) || (m < 0) || (l < 0)) {
+				System.out.println("This should never happen");
+			}
+			checkInArray[y-AirbnbGlobals.STARTYEAR][l][m]++ ;			
+		}
+		
+		for (int y=0; y <= (AirbnbGlobals.ENDYEAR-AirbnbGlobals.STARTYEAR); y++) {
+			for (int l=0; l < listingCount; l++) {
+				int tot = 0;
+				for (int m=0; m <= 11; m++) {
+					tot += checkInArray[y][l][m];
 				}
-				yearlyGrid[y-startYear][listingIdx][12] = listingTotal;
-			
-		    	System.out.println("------------------");
-		    	System.out.printf("\t%8.2f\t" + y + " " + listing + "\n\n",listingTotal);
+				checkInArray[y][l][12] = tot;
 			}
-			
-			System.out.printf("Monthly Totals All Units " + y + " :\n");
-			for (int x=0; x < 12; x++) {
-				String monthName = DateFormatSymbols.getInstance(Locale.US).getMonths()[x];
-				monthName = monthName.substring(0, 3);
-				yearlyGrid[y-startYear][listingCount][x] = monthlyTotals[x];
-				if (monthlyTotals[x] > 0)
-					System.out.printf(monthName + "\t %8.2f\t\t\n",monthlyTotals[x]);
-			}
-			yearlyGrid[y-startYear][listingCount][12] = yearTotal;
-			System.out.printf("\t --------\n");
-			System.out.printf("\t%9.2f\n\n\n",yearTotal);
 		}
-		
-		System.out.print("\nGRAND TOTAL\t" + grandTotal + "\n\n");
-		
-		// Print the yearly grid
-    	System.out.printf("\n\n");
-    	for (int iYear=0; iYear < yearCount; iYear++) {
-    		System.out.print("\n" + (startYear + iYear));
-    		for (int i=0; i< listingCount; i++) {
-    			System.out.print("\t" + listingNames.get(i).substring(0, 9));
-    		}
-    		System.out.print("\tAll Units");
-    		System.out.print("\n-----------------------------------------------------------------\n");
-    		
-    		
-    		for (int iMonth=0; iMonth < 13; iMonth++) {	
-    			
-    			String monthName;
-    			if (iMonth < 12){
-    				monthName = DateFormatSymbols.getInstance(Locale.US).getMonths()[iMonth];
-    				monthName = monthName.substring(0, 3);
-    			} else {
-    				System.out.println("-----------------------------------------------------------------");
-    				monthName = "Tot";
-    			}
-    			
-    			System.out.printf(monthName);
-    			for (int iListing=0; iListing < listingCount+1; iListing++) {
-    				float val = 0;
-    				val = yearlyGrid[iYear][iListing][iMonth];
-    				System.out.printf("\t%9.2f", val);
-    			}
-    			System.out.println();
-    		}
-    		System.out.println();
-		}
-			
+
+		return checkInArray;
 	}
+
 }

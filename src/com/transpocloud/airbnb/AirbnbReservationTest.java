@@ -5,6 +5,8 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -31,6 +33,19 @@ public class AirbnbReservationTest {
 	String testPayoutLine 		= "10/15/2014,Payout,,,,,,Transfer to ACH: *****4879,,USD,,92,,\n";
 	String testReservationLine 	= "10/15/2014,Reservation,CKQ94D,10/14/2014,1,Jia Qi Shen,Great Location Great Price! 2BR SLC,,,USD,92,,3,0\n";
 
+	@Test
+	public void testPrintOccupancyReport() {
+		AirbnbReservationCollection resCollection = null;
+		List<String> fileList;
+		fileList = Arrays.asList("C:/temp/airbnb_2013.csv,C:/temp/airbnb_2014.csv,C:/temp/airbnb_pending.csv".split(","));
+		try {
+			resCollection = new AirbnbReservationCollection(fileList);
+			AirbnbReports.printOccupancyReport(resCollection);
+			assert(true);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 	
 	@Test
 	public void testPrintRevenuesByListingAndMonthReport() {
@@ -39,7 +54,8 @@ public class AirbnbReservationTest {
 		fileList = Arrays.asList("C:/temp/airbnb_2013.csv,C:/temp/airbnb_2014.csv,C:/temp/airbnb_pending.csv".split(","));
 		try {
 			resCollection = new AirbnbReservationCollection(fileList);
-			resCollection.printRevenuesByListingAndMonthReport();
+			AirbnbReports.printRevenuesByListingAndMonthReport(resCollection);
+			
 			assert(true);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -51,7 +67,7 @@ public class AirbnbReservationTest {
 		String testResLine = "12/20/2013,Reservation,ABCDEF,12/19/2014,15,Super Man,Great Location Great Price! 2BR SLC,,,USD,1380,,3,0\n";
 		AirbnbReservation res = new AirbnbReservation(testHeader,testResLine);
 		HashMap<String,Float> hm = res.getMonthlyRevenueByPropertyMap();
-		System.out.println(hm);
+		//System.out.println(hm);
 	}
 	
 	
@@ -59,7 +75,7 @@ public class AirbnbReservationTest {
 	
 	@Test
 	public void testPrintReservationNightTotals() {
-		System.out.println("testPrintReservationNightTotals()----begin----");
+		
 		AirbnbReservationCollection resCollection = null;
 		List<String> fileList;
 		fileList = Arrays.asList("c:/temp/airbnb_2014.csv".split(","));
@@ -69,7 +85,7 @@ public class AirbnbReservationTest {
 			e.printStackTrace();
 		}
 		resCollection.getMonthlyReservationNightTotals();
-		System.out.println("testPrintReservationNightTotals()----end----");
+		
 		assert(true);
 	}
 	
@@ -109,16 +125,12 @@ public class AirbnbReservationTest {
 	
 	@Test
 	public void testGetCheckoutDate() {
-		Date d1 = AirbnbReservation.getCheckoutDate(testHeader, testReservationLine);
-		Date d2 = null;
+		LocalDate d1 = AirbnbReservation.getCheckoutDate(testHeader, testReservationLine);
+		LocalDate d2 = null;
 		
-		SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+		d2 = LocalDate.parse("10/16/2014", formatter);
 		
-		try {
-			d2 = formatter.parse("10/16/2014");
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
 		assert(d1.equals(d2));
 	}
 	
@@ -142,7 +154,7 @@ public class AirbnbReservationTest {
 	
 	@Test
 	public void testPrintPropertyList() {
-		System.out.println("testPrintPropertyList()");
+		//System.out.println("testPrintPropertyList()");
 		AirbnbReservationCollection resCollection = null;
 		List<String> fileList;
 		fileList = Arrays.asList("c:/temp/airbnb_2014.csv".split(","));
@@ -154,4 +166,54 @@ public class AirbnbReservationTest {
 		System.out.println("Property Listings : ");
 		resCollection.printPropertyList();
 	}
+	
+	@Test
+	public void testPrintCheckInByMonthReport() {
+		AirbnbReservationCollection resCollection = null;
+		List<String> fileList;
+		fileList = Arrays.asList("C:/temp/airbnb_2013.csv,C:/temp/airbnb_2014.csv,C:/temp/airbnb_pending.csv".split(","));
+		try {
+			resCollection = new AirbnbReservationCollection(fileList);
+			AirbnbReports.printCheckInByMonthReport(resCollection);
+			assert(true);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	@Test
+	public void testPrintCheckOutByMonthReport() {
+		AirbnbReservationCollection resCollection = null;
+		List<String> fileList;
+		fileList = Arrays.asList("C:/temp/airbnb_2013.csv,C:/temp/airbnb_2014.csv,C:/temp/airbnb_pending.csv".split(","));
+		try {
+			resCollection = new AirbnbReservationCollection(fileList);
+			AirbnbReports.printCheckOutByMonthReport(resCollection);
+			assert(true);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+	@Test
+	public void testIsUnitVacant() {
+		AirbnbReservationCollection resCollection = null;
+		List<String> fileList;
+		fileList = Arrays.asList("c:/temp/airbnb_2014.csv".split(","));
+		try {
+			resCollection = new AirbnbReservationCollection(fileList);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+		LocalDate d = LocalDate.parse("12/06/2014", formatter);
+		boolean isVacant = resCollection.isUnitVacant("1 Bedroom Half Duplex with Kitchen", d);
+
+		assert(isVacant);
+		
+	}
+	
+	
 }

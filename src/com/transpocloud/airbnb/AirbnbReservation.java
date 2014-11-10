@@ -76,6 +76,9 @@ public class AirbnbReservation {
 			throw new InvalidReservationLineException();
 		}
 		
+		this.csvHeaderLine = aCsvColumnHeaderLine;
+		this.csvReservationLine = aCsvReservationLine;
+		
 		// If we got this far we should be able to create an AirbnbReservation
 		//  object successfully
 		headerDescriptionList 	= Arrays.asList(aCsvColumnHeaderLine.split(","));
@@ -113,7 +116,7 @@ public class AirbnbReservation {
 	// get the scheduled checkout date of a reservation
 	public static LocalDate getCheckoutDate(String aCsvColumnHeaderLine, String aCsvReservationLine) {
 		LocalDate checkoutDate = null;
-		String d = AirbnbReservation.getField("Start Date", aCsvColumnHeaderLine, aCsvReservationLine);
+ 		String d = AirbnbReservation.getField("Start Date", aCsvColumnHeaderLine, aCsvReservationLine);
 		String n = AirbnbReservation.getField("Nights", aCsvColumnHeaderLine, aCsvReservationLine);
 		int nights = Integer.parseInt(n);
 		
