@@ -15,6 +15,7 @@ import java.util.List;
 import org.junit.Test;
 
 public class AirbnbReservationTest {
+	public static final String FILEPATH="C:/Users/Crash/Downloads/";
 
 	String testFile = "Date,Type,Confirmation Code,Start Date,Nights,Guest,Listing,Details,Reference,Currency,Amount,Paid Out,Host Fee,Cleaning Fee\n"+
 			"10/15/2014,Payout,,,,,,Transfer to ACH: *****4879,,USD,,92,,\n" +
@@ -37,7 +38,7 @@ public class AirbnbReservationTest {
 	public void testPrintOccupancyReport() {
 		AirbnbReservationCollection resCollection = null;
 		List<String> fileList;
-		fileList = Arrays.asList("C:/temp/airbnb_2013.csv,C:/temp/airbnb_2014.csv,C:/temp/airbnb_pending.csv".split(","));
+		fileList = Arrays.asList((FILEPATH+"airbnb_2013.csv,"+FILEPATH+"airbnb_2014.csv,"+FILEPATH+"airbnb_pending.csv").split(","));
 		try {
 			resCollection = new AirbnbReservationCollection(fileList);
 			AirbnbReports.printOccupancyReport(resCollection);
@@ -51,7 +52,7 @@ public class AirbnbReservationTest {
 	public void testPrintRevenuesByListingAndMonthReport() {
 		AirbnbReservationCollection resCollection = null;
 		List<String> fileList;
-		fileList = Arrays.asList("C:/temp/airbnb_2013.csv,C:/temp/airbnb_2014.csv,C:/temp/airbnb_pending.csv".split(","));
+		fileList = Arrays.asList((FILEPATH+"airbnb_2013.csv,"+FILEPATH+"airbnb_2014.csv,"+FILEPATH+"airbnb_pending.csv").split(","));
 		try {
 			resCollection = new AirbnbReservationCollection(fileList);
 			AirbnbReports.printRevenuesByListingAndMonthReport(resCollection);
@@ -78,7 +79,8 @@ public class AirbnbReservationTest {
 		
 		AirbnbReservationCollection resCollection = null;
 		List<String> fileList;
-		fileList = Arrays.asList("c:/temp/airbnb_2014.csv".split(","));
+		fileList = Arrays.asList((FILEPATH+"airbnb_2013.csv,"+FILEPATH+"airbnb_2014.csv,"+FILEPATH+"airbnb_pending.csv").split(","));
+		//fileList = Arrays.asList("c:/temp/airbnb_2014.csv".split(","));
 		try {
 			resCollection = new AirbnbReservationCollection(fileList);
 		} catch (Exception e) {
@@ -101,7 +103,8 @@ public class AirbnbReservationTest {
 	public void testAirbnbReservationCollection() throws IOException, InvalidHeaderLineException, InvalidReservationLineException, ParseException {
 		AirbnbReservationCollection resCollection;
 		List<String> fileList;
-		fileList = Arrays.asList("c:/temp/airbnb_2014.csv".split(","));
+		fileList = Arrays.asList((FILEPATH+"airbnb_2013.csv,"+FILEPATH+"airbnb_2014.csv,"+FILEPATH+"airbnb_pending.csv").split(","));
+		//fileList = Arrays.asList("c:/temp/airbnb_2014.csv".split(","));
 		try {
 			resCollection = new AirbnbReservationCollection(fileList);
 		} catch (Exception e) {
@@ -157,7 +160,8 @@ public class AirbnbReservationTest {
 		//System.out.println("testPrintPropertyList()");
 		AirbnbReservationCollection resCollection = null;
 		List<String> fileList;
-		fileList = Arrays.asList("c:/temp/airbnb_2014.csv".split(","));
+		fileList = Arrays.asList((FILEPATH+"airbnb_2013.csv,"+FILEPATH+"airbnb_2014.csv,"+FILEPATH+"airbnb_pending.csv").split(","));
+		//fileList = Arrays.asList("c:/temp/airbnb_2014.csv".split(","));
 		try {
 			resCollection = new AirbnbReservationCollection(fileList);
 		} catch (Exception e) {
@@ -171,7 +175,8 @@ public class AirbnbReservationTest {
 	public void testPrintCheckInByMonthReport() {
 		AirbnbReservationCollection resCollection = null;
 		List<String> fileList;
-		fileList = Arrays.asList("C:/temp/airbnb_2013.csv,C:/temp/airbnb_2014.csv,C:/temp/airbnb_pending.csv".split(","));
+		//fileList = Arrays.asList("C:/temp/airbnb_2013.csv,C:/temp/airbnb_2014.csv,C:/temp/airbnb_pending.csv".split(","));
+		fileList = Arrays.asList((FILEPATH+"airbnb_2013.csv,"+FILEPATH+"airbnb_2014.csv,"+FILEPATH+"airbnb_pending.csv").split(","));
 		try {
 			resCollection = new AirbnbReservationCollection(fileList);
 			AirbnbReports.printCheckInByMonthReport(resCollection);
@@ -186,7 +191,8 @@ public class AirbnbReservationTest {
 	public void testPrintCheckOutByMonthReport() {
 		AirbnbReservationCollection resCollection = null;
 		List<String> fileList;
-		fileList = Arrays.asList("C:/temp/airbnb_2013.csv,C:/temp/airbnb_2014.csv,C:/temp/airbnb_pending.csv".split(","));
+		fileList = Arrays.asList((FILEPATH+"airbnb_2013.csv,"+FILEPATH+"airbnb_2014.csv,"+FILEPATH+"airbnb_pending.csv").split(","));
+		//fileList = Arrays.asList("C:/temp/airbnb_2013.csv,C:/temp/airbnb_2014.csv,C:/temp/airbnb_pending.csv".split(","));
 		try {
 			resCollection = new AirbnbReservationCollection(fileList);
 			AirbnbReports.printCheckOutByMonthReport(resCollection);
@@ -200,7 +206,8 @@ public class AirbnbReservationTest {
 	public void testIsUnitVacant() {
 		AirbnbReservationCollection resCollection = null;
 		List<String> fileList;
-		fileList = Arrays.asList("c:/temp/airbnb_2014.csv".split(","));
+		//fileList = Arrays.asList("c:/temp/airbnb_2014.csv".split(","));
+		fileList = Arrays.asList((FILEPATH+"airbnb_2013.csv,"+FILEPATH+"airbnb_2014.csv,"+FILEPATH+"airbnb_pending.csv").split(","));
 		try {
 			resCollection = new AirbnbReservationCollection(fileList);
 		} catch (Exception e) {
@@ -215,5 +222,27 @@ public class AirbnbReservationTest {
 		
 	}
 	
+	@Test
+	public void testPrintReservationLengthReport() {
+		AirbnbReservationCollection resCollection = null;
+		List<String> fileList;
+		fileList = Arrays.asList((FILEPATH+"airbnb_2013.csv,"+FILEPATH+"airbnb_2014.csv,"+FILEPATH+"airbnb_pending.csv").split(","));
+		//fileList = Arrays.asList("C:/temp/airbnb_2013.csv,C:/temp/airbnb_2014.csv,C:/temp/airbnb_pending.csv".split(","));
+		try {
+			resCollection = new AirbnbReservationCollection(fileList);
+			AirbnbReports.printReservationLengthReport(resCollection);
+			assert(true);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	@Test
+	public void testPie() {
+		AirbnbPieChart demo = new AirbnbPieChart("Comparison", "Which operating system are you using?");
+        demo.pack();
+        demo.setVisible(true);
+	}
 	
 }

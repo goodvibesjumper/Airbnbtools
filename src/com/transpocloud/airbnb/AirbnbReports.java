@@ -7,20 +7,87 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Locale;
+
 import org.apache.commons.lang3.StringUtils;
 
 public class AirbnbReports {
+	
+	public static void printReservationLengthReport(AirbnbReservationCollection anAirbnbReservationCollection) {
+		System.out.println("---------------------------------");
+		System.out.println("Reservation Length Summary Report");
+		System.out.println("---------------------------------\n");
+		
+		int startYear = AirbnbGlobals.STARTYEAR;
+		int endYear = AirbnbGlobals.ENDYEAR;
+		int yearCount = endYear-startYear+1;
+		int listingCount = anAirbnbReservationCollection.getListingNames().size();
+		int maxReservationLength = AirbnbGlobals.MAXRESERVATIONLENGTH;
+		float grandTotAllRevenues = 0;
+		
+		ArrayList<AirbnbReservation> reservations = anAirbnbReservationCollection.getAirbnbReservationList();
+		int[][][] reservationLengthsArray = new int[yearCount][listingCount+1][maxReservationLength];
+		float[][][] reservationRevenuesArray = new float[yearCount][listingCount+1][maxReservationLength];
+		
+		for(Iterator<AirbnbReservation> i = reservations.iterator(); i.hasNext(); ) {
+			AirbnbReservation res = i.next();
+			int listingIdx = anAirbnbReservationCollection.getListingNames().indexOf(res.getListingName());
+			int yearIdx = res.getCheckInDate().getYear()-startYear;
+			int resLength = res.getNumberOfNights();
+			reservationLengthsArray[yearIdx][listingIdx][resLength]++;
+			reservationLengthsArray[yearIdx][listingCount][resLength]++;					// running total
+			reservationRevenuesArray[yearIdx][listingIdx][resLength]+=res.getAmount();
+			reservationRevenuesArray[yearIdx][listingCount][resLength]+=res.getAmount();	// running total
+			grandTotAllRevenues+=res.getAmount();
+		}
+		
+		for(int i=0; i < listingCount; i++) {
+			System.out.println(anAirbnbReservationCollection.getListingNames().get(i));
+			for(int y=0; y < yearCount; y++) {
+				System.out.println(startYear+y);
+				for(int z=0; z < maxReservationLength; z++) {
+					int cnt = reservationLengthsArray[y][i][z];
+					float revenue = reservationRevenuesArray[y][i][z];
+					
+					if (cnt > 0) {
+						int revenuePercentage = (int) ((revenue / grandTotAllRevenues) * 100 + .5);
+						System.out.printf("%5d x %5d night reservation(s)   $%5.2f \n",cnt,z,revenue);
+						//System.out.printf("%5d x %5d night reservation(s)   $%5.2f\n",cnt,zrevenue);
+					}
+					
+				}
+			}
+		}
+
+		System.out.println("\n\nSummary : ");
+		float[] revenuePercentages = new float[maxReservationLength];
+				
+		for (int z=0; z < maxReservationLength; z++) {
+			int resCountTotal = 0;
+			float revenueTotal = 0;
+			
+			for(int y=0; y < yearCount; y++) {
+				resCountTotal += reservationLengthsArray[y][listingCount][z];
+				revenueTotal +=  reservationRevenuesArray[y][listingCount][z];
+			}
+			
+			if (resCountTotal > 0) {
+				int revenuePercentage = (int) ((revenueTotal/grandTotAllRevenues) * 100 + .5);
+				float profit = revenueTotal - (float)(resCountTotal * 20);
+				System.out.printf("%5d x %5d night reservation(s)   $%5.2f%8.2f %5d%%\n",resCountTotal,z,revenueTotal,profit,revenuePercentage);
+			}
+		}
+	}
 	
 	public static void printRevenuesByListingAndMonthReport(AirbnbReservationCollection anAirbnbReservationCollection) {
 
 		System.out.println("Revenues By Listing and Month Report");
 		System.out.println("-------- -- ------- --- ----- ------");
 		
-		float grandTotal = 0;
 		float yearTotal = 0;
-		int startYear = 2013;
-		int endYear = 2015;
+		int startYear = AirbnbGlobals.STARTYEAR;
+		int endYear = AirbnbGlobals.ENDYEAR;
 		int yearCount = endYear-startYear+1;
 		
 		ArrayList<String> listingNames = anAirbnbReservationCollection.getListingNames();
@@ -44,7 +111,6 @@ public class AirbnbReports {
 				int listingIdx = listingNames.indexOf(listing);
 				
 				float listingTotal = 0;
-				//System.out.println(listing + " " + y);
 				for (int x=0; x < 12; x++) {
 					String monthName = DateFormatSymbols.getInstance(Locale.US).getMonths()[x];
 					monthName = monthName.substring(0, 3);
@@ -59,36 +125,20 @@ public class AirbnbReports {
 						yearlyGrid[y-startYear][listingIdx][x] = amt;							
 						
 						yearTotal+=amt;
-						grandTotal+=amt;
 					} catch (Exception e) {}
 	
-					if (amt > 0) {
-						//System.out.printf(monthName + "\t%8.2f\n",amt);
-					}
 				}
 				yearlyGrid[y-startYear][listingIdx][12] = listingTotal;
-			
-		    	//System.out.println("------------------");
-		    	//System.out.printf("\t%8.2f" + y + " " + listing + "\n\n",listingTotal);
 			}
 			
-			//System.out.printf("Monthly Totals All Units " + y + " :\n");
 			for (int x=0; x < 12; x++) {
 				String monthName = DateFormatSymbols.getInstance(Locale.US).getMonths()[x];
 				monthName = monthName.substring(0, 3);
 				yearlyGrid[y-startYear][listingCount][x] = monthlyTotals[x];
-				//if (monthlyTotals[x] > 0)
-					//System.out.printf(monthName + "\t %8.2f\t\t\n",monthlyTotals[x]);
 			}
 			yearlyGrid[y-startYear][listingCount][12] = yearTotal;
-			//System.out.printf("\t --------\n");
-			//System.out.printf("\t%9.2f\n\n\n",yearTotal);
 		}
 		
-		//System.out.print("\nGRAND TOTAL\t" + grandTotal + "\n\n");*/
-		
-		// Print the yearly grid
-    	//System.out.printf("\n\n");
     	for (int iYear=0; iYear < yearCount; iYear++) {
     		System.out.print("\n" + (startYear + iYear));
     		for (int i=0; i< listingCount; i++) {
@@ -189,7 +239,6 @@ public class AirbnbReports {
     	
     	for (int y = 0; y <= AirbnbGlobals.ENDYEAR-AirbnbGlobals.STARTYEAR; y++) {
     	
-    		// Print out the header for this particular year grid
     		System.out.printf("%-5d", (AirbnbGlobals.STARTYEAR + y));
        		for (int i=0; i< listingNames.size(); i++) {
        			System.out.printf("%10s",AirbnbReservationCollection.getListingAlias(listingNames.get(i)));
@@ -253,17 +302,14 @@ public class AirbnbReports {
 		
 		
 		for (String listing : anAirbnbReservationCollection.getListingNames()) {
-		//for (int y = startYear; y <= endYear; y++) {
 			System.out.println(listing);
 			int[] occupancyMonthlyTotals = new int[12];						
 			for (int x=0; x < 12; x++) { 
 				occupancyMonthlyTotals[x]=(int) 0;
 			}
 			
-			//for (String listing : listingNames) {
 			for (int y = AirbnbGlobals.STARTYEAR; y <= AirbnbGlobals.ENDYEAR; y++) {
-				System.out.println("----" + y + "----");
-				//System.out.println(listing + " " + y);
+				System.out.println("---------------------------------------" + y + "-------------------");
 				for (int x=0; x < 12; x++) {
 					String monthName = DateFormatSymbols.getInstance(Locale.US).getMonths()[x];
 					monthName = monthName.substring(0, 3);
@@ -294,7 +340,6 @@ public class AirbnbReports {
 					}
 				}
 				
-				//System.out.println();
 			}
 		}
 	}

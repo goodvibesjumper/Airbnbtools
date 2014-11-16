@@ -28,6 +28,7 @@ public class AirbnbReservationCollection {
 	public AirbnbReservationCollection() {}
 	public ArrayList<String> getListingNames() { return listingNames; }
 	public HashMap<String,Float> getMonthlyRevenuesByPropertyMap() { return monthlyRevenuesByPropertyMap; }
+	public ArrayList<AirbnbReservation> getAirbnbReservationList() {return airbnbReservationList;}
 	
 	public static String getListingAlias(String aListingString) {
 		String ret = aListingString;
